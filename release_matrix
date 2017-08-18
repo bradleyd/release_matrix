@@ -1,0 +1,46 @@
+#!/usr/bin/env ruby
+require_relative "./release_matrix"
+require 'optparse'
+
+options = {}
+banner = nil
+
+# set the default option is none are given
+OptionParser.new do |opts|
+  opts.banner = "You need to pass the directory where the dockerfiles live and the application directory\nUsage: #{__FILE__} [options]"
+
+ 	opts.on("-d", "--debug", "Enable debug output") do |d|
+    options[:debug] = d
+  end
+
+  opts.on("-f ", "--dockerfiles-directory ", "The directory to look for dockerfiles") do |f|
+    options[:dockerfiles_directory] = f
+  end
+
+  opts.on("-a ", "--application-directory ", "The path to your application") do |ap|
+    options[:application_directory] = ap
+  end
+
+	opts.on("-o ", "--destination-directory ", "The path where you want the release to be written to") do |o|
+    options[:destination_directory] = o
+  end
+
+  opts.on_tail("-h", "--help", "help") do
+    puts opts
+    exit
+  end
+
+  #set current options
+  banner = opts
+
+end.parse!
+
+if options.empty?
+  puts banner
+  exit
+end
+
+raise OptionParser::MissingArgument if options[:dockerfiles_directory].nil? || options[:application_directory].nil? || options[:destination_directory].nil?
+
+release = ReleaseMatrix.new(options) 
+release.run
