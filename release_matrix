@@ -13,7 +13,11 @@ OptionParser.new do |opts|
     options[:debug] = d
   end
 
-  opts.on("-f ", "--dockerfiles-directory ", "The directory to look for dockerfiles") do |f|
+	opts.on("-r ", "--release-file ", "Release file path and name.  Ex: /var/lib/foo.tar.gz") do |r|
+    options[:release] = r
+  end
+
+  opts.on("-f ", "--dockerfiles-directory ", "The directory that has the dockerfiles") do |f|
     options[:dockerfiles_directory] = f
   end
 
@@ -21,9 +25,14 @@ OptionParser.new do |opts|
     options[:application_directory] = ap
   end
 
-	opts.on("-o ", "--destination-directory ", "The path where you want the release to be written to") do |o|
+	opts.on("-o ", "--destination-directory ", "The path where you want the release to be copied to (host machine)") do |o|
     options[:destination_directory] = o
   end
+
+	opts.on("-u ", "--docker-url ", "The connection string to docker host") do |u|
+    options[:docker_url] = u
+  end
+
 
   opts.on_tail("-h", "--help", "help") do
     puts opts
@@ -40,7 +49,7 @@ if options.empty?
   exit
 end
 
-raise OptionParser::MissingArgument if options[:dockerfiles_directory].nil? || options[:application_directory].nil? || options[:destination_directory].nil?
+raise OptionParser::MissingArgument if options[:dockerfiles_directory].nil? || options[:application_directory].nil? || options[:destination_directory].nil? || options[:release].nil?
 
 release = ReleaseMatrix.new(options) 
 release.run

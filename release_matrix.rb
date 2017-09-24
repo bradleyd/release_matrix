@@ -1,13 +1,14 @@
 require 'docker'
 
-# TODO pass in HTTP url
 class ReleaseMatrix
 	def initialize(opts)
 		@dockerfiles_directory = opts[:dockerfiles_directory]
 		@application_directory = opts[:application_directory]
 		@destination_directory = opts[:destination_directory]
-		@debug = opts[:debug] || false
-		Docker.url = "tcp://192.168.1.46:14443"
+		@debug                 = opts[:debug] || false
+		@release               = opts[:release]
+		@docker_url            = opts[:docker_url] || "unix:///var/run/docker.sock"
+		Docker.url             = @docker_url 
 	end
 
 	def run
@@ -18,13 +19,13 @@ class ReleaseMatrix
 			threads << Thread.new {
 				begin 
 					start = Time.now.to_i
-					name = File.basename(dfile)
-					os = name.split(".").last
+					name  = File.basename(dfile)
+					os    = name.split(".").last
 					image = build_image(name)
-					container = build_container(os, image.id)
-					f=destination_file(os)
-					container.copy("/usr/lib/wameku/client/wameku_client.tar.gz") { |chk| f.write(chk) }
-					f.close
+					container   = build_container(os, image.id)
+					file_handle = destination_file(os)
+					container.copy(@release) { |chk| file_handle.write(chk) }
+					file_handle.close
 					container.delete(:force => true)
 					image.remove(:force => true)
 				  end_time = Time.now.to_i - start
@@ -58,7 +59,6 @@ class ReleaseMatrix
 	end
 
 	private
-
 	def debug_params
 		put_to_stdout("Dockerfiles directory = #{@dockerfiles_directory}")
 		put_to_stdout("Application directory = #{@application_directory}")
@@ -66,8 +66,6 @@ class ReleaseMatrix
 	end
 
 	def put_to_stdout(message)
-		if @debug
-			$stdout.puts(message)
-		end
+		$stdout.puts(message) if @debug
 	end
 end

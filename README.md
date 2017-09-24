@@ -5,11 +5,11 @@ I create separate dockerfiles for each OS.
 
 * The dockerfiles may have different versions of Elixir and sub packages.
 
-I then pass to release matrix, the dockerfiles directory, application directory, and artifact destination path.
+I then pass to release matrix, the dockerfiles directory, application directory, artifact destination path, and release name and path.
 
 
 ```bash
-./release_matrix -d  -f /home/bradleyd/Projects/wameku_client/dockerfiles -a /home/bradleyd/Projects/wameku_client -o /tmp
+./release_matrix -d  -f /home/bradleyd/Projects/wameku_client/dockerfiles -a /home/bradleyd/Projects/wameku_client -o /tmp -r '/var/lib/wameku_client.tar.gz'
 Dockerfiles directory = /home/bradleyd/Projects/wameku_client/dockerfiles
 Application directory = /home/bradleyd/Projects/wameku_client
 Destination directory = /tmp
